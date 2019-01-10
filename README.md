@@ -319,53 +319,8 @@ void *memset(void *, int, size_t);
 
 ### union 联合
 
-联合（union）是一种节省空间的特殊的类，一个 union 可以有多个数据成员，但是在任意时刻只有一个数据成员可以有值。当某个成员被赋值后其他成员变为未定义状态。联合有如下特点：
-
-* 默认访问控制符为 public
-* 可以含有构造函数、析构函数
-* 不能含有引用类型的成员
-* 不能继承自其他类，不能作为基类
-* 不能含有虚函数
-* 匿名 union 在定义所在作用域可直接访问 union 成员
-* 匿名 union 不能包含 protected 成员或 private 成员
-* 全局匿名联合必须是静态（static）的
-
-<summary>union 使用</summary> 
-
-```cpp
-#include<iostream>
-
-union UnionTest {
-    UnionTest() : i(10) {};
-    int i;
-    double d;
-};
-
-static union {
-    int i;
-    double d;
-};
-
-int main() {
-    UnionTest u;
-
-    union {
-        int i;
-        double d;
-    };
-
-    std::cout << u.i << std::endl;  // 输出 UnionTest 联合的 10
-
-    ::i = 20;
-    std::cout << ::i << std::endl;  // 输出全局静态匿名联合的 20
-
-    i = 30;
-    std::cout << i << std::endl;    // 输出局部匿名联合的 30
-
-    return 0;
-}
-```
-
+联合（union）是一种节省空间的特殊的类，一个 union 可以有多个数据成员，但是在任意时刻只有一个数据成员可以有值。当某个成员被赋值后其他成员变为未定义状态。 
+联合体重要应用： 在STL源码 allocator中用到，那个内存池的链表，为了防止链表本身4个字节的开销
 
 
 ### C 实现 C++ 类
@@ -599,63 +554,7 @@ auto fcn2(It beg, It end) -> typename remove_reference<decltype(*beg)>::type
   2. 引用类型，引用必须在定义的时候初始化，并且不能重新赋值，所以也要写在初始化列表里面
   3. 没有默认构造函数的类类型，因为使用初始化列表可以不必调用默认构造函数来初始化，而是直接调用拷贝构造函数初始化。
 
-### initializer_list 列表初始化【C++11】
-
-用花括号初始化器列表列表初始化一个对象，其中对应构造函数接受一个 `std::initializer_list` 参数.
-
-<summary>initializer_list 使用</summary> 
-
-```cpp
-#include <iostream>
-#include <vector>
-#include <initializer_list>
  
-template <class T>
-struct S {
-    std::vector<T> v;
-    S(std::initializer_list<T> l) : v(l) {
-         std::cout << "constructed with a " << l.size() << "-element list\n";
-    }
-    void append(std::initializer_list<T> l) {
-        v.insert(v.end(), l.begin(), l.end());
-    }
-    std::pair<const T*, std::size_t> c_arr() const {
-        return {&v[0], v.size()};  // 在 return 语句中复制列表初始化
-                                   // 这不使用 std::initializer_list
-    }
-};
- 
-template <typename T>
-void templated_fn(T) {}
- 
-int main()
-{
-    S<int> s = {1, 2, 3, 4, 5}; // 复制初始化
-    s.append({6, 7, 8});      // 函数调用中的列表初始化
- 
-    std::cout << "The vector size is now " << s.c_arr().second << " ints:\n";
- 
-    for (auto n : s.v)
-        std::cout << n << ' ';
-    std::cout << '\n';
- 
-    std::cout << "Range-for over brace-init-list: \n";
- 
-    for (int x : {-1, -2, -3}) // auto 的规则令此带范围 for 工作
-        std::cout << x << ' ';
-    std::cout << '\n';
- 
-    auto al = {10, 11, 12};   // auto 的特殊规则
- 
-    std::cout << "The list bound to auto has size() = " << al.size() << '\n';
- 
-//    templated_fn({1, 2, 3}); // 编译错误！“ {1, 2, 3} ”不是表达式，
-                             // 它无类型，故 T 无法推导
-    templated_fn<std::initializer_list<int>>({1, 2, 3}); // OK
-    templated_fn<std::vector<int>>({1, 2, 3});           // 也 OK
-}
-```
-
 
 
 ### 面向对象
@@ -802,6 +701,8 @@ virtual int A() = 0;
 * 带纯虚函数的类叫抽象类，这种类不能直接生成对象，而只有被继承，并重写其虚函数后，才能使用。抽象类和大家口头常说的虚基类还是有区别的，在 C# 中用 abstract 定义抽象类，而在 C++ 中有抽象类的概念，但是没有这个关键字。抽象类被继承后，子类可以继续是抽象类，也可以是普通类，而虚基类，是含有纯虚函数的类，它如果被继承，那么子类就必须实现虚基类里面的所有纯虚函数，其子类不能是抽象类。
 
 ### 虚函数指针、虚函数表
+
+https://jocent.me/2017/08/07/virtual-table.html
 
 * 虚函数指针：在含有虚函数类的对象中，指向虚函数表，在运行时确定。
 * 虚函数表：在程序只读数据段（`.rodata section`，见：[目标文件存储结构](#%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84)），存放虚函数指针，如果派生类实现了基类的某个虚函数，则在虚表中覆盖原本基类的那个虚函数指针，在编译时根据类的声明创建。
