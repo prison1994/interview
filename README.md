@@ -97,7 +97,7 @@ const int* function6();     // 返回一个指向常量的指针变量，使用�
 int* const function7();     // 返回一个指向变量的常指针，使用：int* const p = function7();
 ```
 
-</details>
+
 
 ### static
 
@@ -168,7 +168,7 @@ class A {
 inline int A::doA() { return 0; }   // 需要显式内联
 ```
 
-</details>
+
 
 #### 编译器对 inline 函数的处理步骤
 
@@ -243,7 +243,7 @@ int main()
 } 
 ```
 
-</details>
+
 
 ### assert()
 
@@ -258,7 +258,7 @@ int main()
 assert( p != NULL );    // assert 不可用
 ```
 
-</details>
+
 
 ### sizeof()
 
@@ -268,6 +268,22 @@ assert( p != NULL );    // assert 不可用
 ### #pragma pack(n)
 
 设定结构体、联合以及类成员变量以 n 字节方式对齐
+
+
+所谓内存对齐，是为了让内存存取更有效率而采用的一种编译阶段优化内存存取的手段。
+比如对于int x;（这里假设sizeof(int)==4），因为cpu对内存的读取操作是对齐的，如果x的地址不是4的倍数，那么读取这个x，需要读取两次共8个字节，然后还要将其拼接成一个int，这比存取对齐过的x要麻烦很多。
+ 
+
+首先要明白三个点：
+1，内存对齐是指首地址对齐，而不是说每个变量大小对齐；
+2，结构体内存对齐要求结构体内每一个成员变量都是内存对齐的；
+3，结构体对齐除了第2点之外还要求结构体数组也必须是对齐的，也就是说每个相邻的结构体内部都是对齐的。
+
+内存对齐 例子
+https://blog.csdn.net/zongcai249/article/details/17589079
+例子2（更详细，必看）
+https://blog.csdn.net/lime1991/article/details/44536343
+
 
 <summary>#pragma pack(n) 使用</summary> 
 
@@ -286,19 +302,8 @@ struct test
 #pragma pack(pop)   // 恢复对齐状态
 ```
 
-</details>
 
-### 位域
 
-```cpp
-Bit mode: 2;    // mode 占 2 位
-```
-
-类可以将其（非静态）数据成员定义为位域（bit-field），在一个位域中含有一定数量的二进制位。当一个程序需要向其他程序或硬件设备传递二进制数据时，通常会用到位域。
-
-* 位域在内存中的布局是与机器有关的
-* 位域的类型必须是整型或枚举类型，带符号类型中的位域的行为将因具体实现而定
-* 取地址运算符（&）不能作用于位域，任何指针都无法指向类的位域
 
 ### volatile
 
@@ -340,7 +345,7 @@ void *memset(void *, int, size_t);
 #endif
 ```
 
-</details>
+
 
 ### struct 和 typedef struct
 
@@ -462,7 +467,7 @@ int main() {
 }
 ```
 
-</details>
+
 
 ### C 实现 C++ 类
 
@@ -506,7 +511,7 @@ int main()
 }
 ```
 
-</details>
+
 
 ### friend 友元类和友元函数
 
@@ -583,7 +588,7 @@ cin >> x;
 cout << x << endl;
 ```
 
-</details>
+
 
 ### :: 范围解析运算符
 
@@ -615,7 +620,7 @@ int main() {
 }
 ```
 
-</details>
+
 
 ### enum 枚举类型
 
@@ -659,7 +664,7 @@ auto fcn2(It beg, It end) -> typename remove_reference<decltype(*beg)>::type
 }
 ```
 
-</details>
+
 
 ### 引用
 
@@ -752,7 +757,7 @@ int main()
 }
 ```
 
-</details>
+
 
 ### 面向对象
 
@@ -846,7 +851,7 @@ int main()
 }
 ```
 
-</details>
+
 
 ### 虚析构函数
 
@@ -878,7 +883,7 @@ int main()
 }
 ```
 
-</details>
+
 
 ### 纯虚函数
 
@@ -965,7 +970,7 @@ free(p);
 p = nullptr;
 ```
 
-</details>
+
 
 #### new、delete
 
@@ -986,7 +991,7 @@ int main()
 }
 ```
 
-</details>
+
 
 #### 定位 new
 
@@ -1127,7 +1132,7 @@ catch (bad_cast b) {
 } 
 ```
 
-</details>
+
 
 ### 运行时类型信息 (RTTI) 
 
@@ -1199,7 +1204,7 @@ class doSomething(Flyable *obj)                 // 做些事情
 };
 ```
 
-</details>
+
 
 ### Effective C++
 
@@ -1269,7 +1274,7 @@ class doSomething(Flyable *obj)                 // 做些事情
 
 > 图片来源于：[CSDN . 一张图总结Google C++编程规范(Google C++ Style Guide)](https://blog.csdn.net/voidccc/article/details/37599203)
 
-</details>
+
 
 ## STL
 
@@ -1325,7 +1330,7 @@ typedef struct {
 
 ![](images/SqStack.png)
 
-</details>
+
 
 #### 队列（Sequence Queue）
 
@@ -1340,7 +1345,7 @@ typedef struct {
 }SqQueue;
 ```
 
-</details>
+
 
 ##### 非循环队列
 
@@ -1350,7 +1355,7 @@ typedef struct {
 
 `SqQueue.rear++`
 
-</details>
+
 
 ##### 循环队列
 
@@ -1360,7 +1365,7 @@ typedef struct {
 
 `SqQueue.rear = (SqQueue.rear + 1) % SqQueue.maxSize`
 
-</details>
+
 
 #### 顺序表（Sequence List）
 
@@ -1379,7 +1384,7 @@ typedef struct {
 
 ![](images/SqList.png)
 
-</details>
+
 
 
 ### 链式结构
@@ -1397,7 +1402,7 @@ typedef struct LNode {
 } LNode, *LinkList; 
 ```
 
-</details>
+
 
 #### 链队列（Link Queue）
 
@@ -1405,7 +1410,7 @@ typedef struct LNode {
 
 ![](images/LinkQueue.png)
 
-</details>
+
 
 #### 线性表的链式表示
 
@@ -1415,7 +1420,7 @@ typedef struct LNode {
 
 ![](images/LinkList.png)
 
-</details>
+
 
 
 ##### 双向链表（Du-Link-List）
@@ -1424,7 +1429,7 @@ typedef struct LNode {
 
 ![](images/DuLinkList.png)
 
-</details>
+
 
 ##### 循环链表（Cir-Link-List）
 
@@ -1432,7 +1437,7 @@ typedef struct LNode {
 
 ![](images/CirLinkList.png)
 
-</details>
+
 
 ### 哈希表
 
@@ -1479,7 +1484,7 @@ typedef struct {
 
 ![](images/HashTable.png)
 
-</details>
+
 
 
 ### 递归
@@ -1530,7 +1535,7 @@ typedef struct GLNode {
 
 ![](images/GeneralizedList1.png)
 
-</details>
+
 
 ##### 扩展线性链表存储表示
 
@@ -1555,7 +1560,7 @@ typedef struct GLNode1 {
 
 ![](images/GeneralizedList2.png)
 
-</details>
+
 
 ### 二叉树
 
@@ -1584,7 +1589,7 @@ typedef struct BiTNode
 }BiTNode, *BiTree;
 ```
 
-</details>
+
 
 
 ##### 顺序存储
@@ -1593,7 +1598,7 @@ typedef struct BiTNode
 
 ![](images/SqBinaryTree.png)
 
-</details>
+
 
 ##### 链式存储
 
@@ -1601,7 +1606,7 @@ typedef struct BiTNode
 
 ![](images/LinkBinaryTree.png)
 
-</details>
+
 
 #### 遍历方式
 
@@ -1648,7 +1653,7 @@ typedef struct BiTNode
 
 ![](images/Self-balancingBinarySearchTree.png)
 
-</details>
+
 
 ##### 最小失衡树
 
@@ -1692,7 +1697,7 @@ typedef struct BiTNode
 
 ![B 树（B-tree）、B+ 树（B+-tree）](https://i.stack.imgur.com/l6UyF.png)
 
-</details>
+
 
 ##### 特点
 
@@ -1725,7 +1730,7 @@ typedef struct BiTNode
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Octree2.png/400px-Octree2.png)
 
-</details>
+
 
 八叉树（octree），或称八元树，是一种用于描述三维空间（划分空间）的树状数据结构。八叉树的每个节点表示一个正方体的体积元素，每个节点有八个子节点，这八个子节点所表示的体积元素加在一起就等于父节点的体积。一般中心点作为节点的分叉中心。
 
@@ -1992,7 +1997,7 @@ B树/B+树 |O(log<sub>2</sub>n) |   |
 ![大端序](images/CPU-Big-Endian.svg.png)
 ![小端序](images/CPU-Little-Endian.svg.png)
 
-</details>
+
 
 ##### 判断大端小端
 
@@ -2017,7 +2022,7 @@ int main()
 }
 ```
 
-</details>
+
 
 ##### 各架构处理器的字节序
 
@@ -2282,7 +2287,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 
 ![](images/利用可变窗口进行流量控制举例.png)
 
-</details>
+
 
 #### TCP 拥塞控制
 
@@ -2303,7 +2308,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 ![](images/快重传示意图.png)
 ![](images/TCP的拥塞控制流程图.png)
 
-</details>
+
 
 #### TCP 传输连接管理
 
@@ -2371,7 +2376,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 
 ![TCP 的有限状态机](images/TCP的有限状态机.png)
 
-</details>
+
 
 ### 应用层
 
@@ -2757,7 +2762,7 @@ void hello() {
 }
 ```
 
-</details>
+
 
 #### so 共享库的使用（被可执行项目调用）
 
@@ -2815,7 +2820,7 @@ Hello, World!
 1 + 2 + 3 = 6
 ```
 
-</details>
+
 
 ### Windows 应用程序入口函数
 
@@ -2837,7 +2842,7 @@ int _tmain(
     TCHAR *envp[]);
 ```
 
-</details>
+
 
 应用程序类型|入口点函数|嵌入可执行文件的启动函数
 ---|---|---
@@ -2909,7 +2914,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 }
 ```
 
-</details>
+
 
 #### 载入卸载库
 
@@ -2942,7 +2947,7 @@ VOID WINAPI FreeLibraryAndExitThread(
 );
 ```
 
-</details>
+
 
 #### 显示地链接到导出符号
 
@@ -2955,7 +2960,7 @@ FARPROC GetProcAddress(
 );
 ```
 
-</details>
+
 
 #### DumpBin.exe 查看 DLL 信息
 
@@ -2976,7 +2981,7 @@ DUMPBIN -exports D:\mydll.dll
 
 ![WindowsFreeLibrary](images/WindowsFreeLibrary.png)
 
-</details>
+
 
 #### DLL 库的编写（导出一个 DLL 模块）
 
@@ -3031,7 +3036,7 @@ int Add(int nLeft, int nRight)
 }
 ```
 
-</details>
+
 
 #### DLL 库的使用（运行时动态链接 DLL）
 
@@ -3082,7 +3087,7 @@ int main( void )
 }
 ```
 
-</details>
+
 
 ### 运行库（Runtime Library）
 
