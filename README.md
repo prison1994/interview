@@ -106,6 +106,7 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
 1. 修饰普通变量，修改变量的存储区域和生命周期，使变量存储在静态区，在 main 函数运行前就分配了空间，如果有初始值就用初始值初始化它，如果没有初始值系统用默认值初始化它。
 2. 修饰普通函数，表明函数的作用范围，仅在定义该函数的文件内才能使用。在多人开发项目时，为了防止与他人命令函数重名，可以将函数定位为 static。
 3. 修饰成员变量，修饰成员变量使所有的对象只保存一个该变量，而且不需要生成对象就可以访问该成员。
+	静态成员变量使用前必须先初始化(如int MyClass::m_nNumber = 0;), 静态成员不受 private影响，初始化往往写在函数外面（类似于全局变量）
 4. 修饰成员函数，修饰成员函数使得不需要生成对象就可以访问该函数，但是在 static 函数内不能访问非静态成员。
 
 
@@ -133,49 +134,6 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
 
 ### inline 内联函数
 
-#### 特征
-
-* 相当于把内联函数里面的内容写在调用内联函数处；
-* 相当于不用执行进入函数的步骤，直接执行函数体；
-* 相当于宏，却比宏多了类型检查，真正具有函数特性；
-* 不能包含循环、递归、switch 等复杂操作；
-* 在类声明中定义的函数，除了虚函数的其他函数都会自动隐式地当成内联函数。
-
-#### 使用
-
-<summary>inline 使用</summary> 
-
-
-```cpp
-// 声明1（加 inline，建议使用）
-inline int functionName(int first, int secend,...);
-
-// 声明2（不加 inline）
-int functionName(int first, int secend,...);
-
-// 定义
-inline int functionName(int first, int secend,...) {/****/};
-
-// 类内定义，隐式内联
-class A {
-    int doA() { return 0; }         // 隐式内联
-}
-
-// 类外定义，需要显式内联
-class A {
-    int doA();
-}
-inline int A::doA() { return 0; }   // 需要显式内联
-```
-
-
-
-#### 编译器对 inline 函数的处理步骤
-
-1. 将 inline 函数体复制到 inline 函数调用点处； 
-2. 为所用 inline 函数中的局部变量分配内存空间； 
-3. 将 inline 函数的的输入参数和返回值映射到调用方法的局部变量空间中； 
-4. 如果 inline 函数有多个返回点，将其转变为 inline 函数代码块末尾的分支（使用 GOTO）。
 
 #### 优缺点
 
@@ -347,66 +305,7 @@ void *memset(void *, int, size_t);
 
 
 
-### struct 和 typedef struct
 
-#### C 中
-
-```c
-// c
-typedef struct Student {
-    int age; 
-} S;
-```
-
-等价于
-
-```c
-// c
-struct Student { 
-    int age; 
-};
-
-typedef struct Student S;
-```
-
-此时 `S` 等价于 `struct Student`，但两个标识符名称空间不相同。
-
-另外还可以定义与 `struct Student` 不冲突的 `void Student() {}`。
-
-#### C++ 中
-
-由于编译器定位符号的规则（搜索规则）改变，导致不同于C语言。
-
-一、如果在类标识符空间定义了 `struct Student {...};`，使用 `Student me;` 时，编译器将搜索全局标识符表，`Student` 未找到，则在类标识符内搜索。
-
-即表现为可以使用 `Student` 也可以使用 `struct Student`，如下：
-
-```cpp
-// cpp
-struct Student { 
-    int age; 
-};
-
-void f( Student me );       // 正确，"struct" 关键字可省略
-```
-
-二、若定义了与 `Student` 同名函数之后，则 `Student` 只代表函数，不代表结构体，如下：
-
-```cpp
-typedef struct Student { 
-    int age; 
-} S;
-
-void Student() {}           // 正确，定义后 "Student" 只代表此函数
-
-//void S() {}               // 错误，符号 "S" 已经被定义为一个 "struct Student" 的别名
-
-int main() {
-    Student(); 
-    struct Student me;      // 或者 "S me";
-    return 0;
-}
-```
 
 ### C++ 中 struct 和 class
 
@@ -1017,6 +916,21 @@ new (palce_address) type [size] { braced initializer list }
 2. 必须保证调用 `delete this` 的成员函数是最后一个调用 this 的成员函数
 3. 必须保证成员函数的 `delete this ` 后面没有调用 this 了
 4. 必须保证 `delete this` 后没有人使用了
+
+
+### 拷贝构造什么时候发生
+
+1. 作为函数参数
+2. 作为函数返回值
+3. 一个对象以另外一个对象进行初始化
+
+ 成员变量有 指针的情况下，拷贝构造 和 operator = 必须要写，不然会出错。这也是所谓的深拷贝，浅拷贝。
+
+### 赋值运算符和拷贝构造的区别 
+	A a;
+	A b=a;  拷贝构造
+	A c;
+	c = a  赋值运算符
 
 ### 如何定义一个只能在堆上（栈上）生成对象的类？
 
