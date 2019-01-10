@@ -30,18 +30,27 @@ C/C++ 面试基础知识总结，只为复习、分享。勘误新增请 [Issue]
 
 ## C/C++
 
+### 标准C＋＋类std::string的内存共享和Copy-On-Write（写时拷贝）
+https://blog.csdn.net/Li_Ning_/article/details/51348830
+
+
 ### const
 
 #### 作用
 
 1. 修饰变量，说明该变量不可以被改变；
 2. 修饰指针，分为指向常量的指针和指针常量；
-3. 常量引用，经常用于形参类型，即避免了拷贝，又避免了函数对值的修改；
-4. 修饰成员函数，说明该成员函数内不能修改成员变量。
+    const int * pOne;    //指向整形常量 的指针，它指向的值不能修改
+    int * const pTwo;    //指向整形的常量指针 ，它不能在指向别的变量，但指向（变量）的值可以修改。 
+    const int *const pThree;  //指向整形常量 的常量指针 。它既不能再指向别的常量，指向的值也不能修改。
+
+3. 常量引用，经常用于形参类型，即避免了拷贝，又避免了函数对值的修改；  
+4. 修饰成员函数，说明该成员函数内不能修改成员变量。 
+5. 修饰成员变量， 成员变量的初始化 以前只能是在成员初始化列表里面，现在可以随便搞
 
 #### 使用
 
-<details><summary>const 使用</summary> 
+<summary>const 使用</summary> 
 
 ```cpp
 // 类
@@ -99,6 +108,17 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
 3. 修饰成员变量，修饰成员变量使所有的对象只保存一个该变量，而且不需要生成对象就可以访问该成员。
 4. 修饰成员函数，修饰成员函数使得不需要生成对象就可以访问该函数，但是在 static 函数内不能访问非静态成员。
 
+
+
+### 指针和引用的区别
+
+1. 引用只能在定义时被初始化一次，之后不可变
+2. 引用不能为空，指针可以为空；
+3. “sizeof 引用”得到的是所指向的变量(对象)的大小，而“sizeof 指针”得到的是指针本身的大小；
+4. 引用是类型安全的，而指针不是 (引用比指针多了类型检查
+
+
+
 ### this 指针
 
 1. `this` 指针是一个隐含于每一个非静态成员函数中的特殊指针。它指向正在被该成员函数操作的那个对象。
@@ -123,7 +143,7 @@ int* const function7();     // 返回一个指向变量的常指针，使用：i
 
 #### 使用
 
-<details><summary>inline 使用</summary> 
+<summary>inline 使用</summary> 
 
 
 ```cpp
@@ -180,7 +200,7 @@ inline int A::doA() { return 0; }   // 需要显式内联
 * 内联是在编译器建议编译器内联，而虚函数的多态性在运行期，编译器无法知道运行期调用哪个代码，因此虚函数表现为多态性时（运行期）不可以内联。
 * `inline virtual` 唯一可以内联的时候是：编译器知道所调用的对象是哪个类（如 `Base::who()`），这只有在编译器具有实际对象而不是对象的指针或引用时才会发生。
 
-<details><summary>虚函数内联使用</summary> 
+<summary>虚函数内联使用</summary> 
 
 
 ```cpp
@@ -229,7 +249,7 @@ int main()
 
 断言，是宏，而非函数。assert 宏的原型定义在 `<assert.h>`（C）、`<cassert>`（C++）中，其作用是如果它的条件返回错误，则终止程序执行。可以通过定义 `NDEBUG` 来关闭 assert，但是需要在源代码的开头，`include <assert.h>` 之前。
 
-<details><summary>assert() 使用</summary> 
+<summary>assert() 使用</summary> 
 
 ```cpp
 #define NDEBUG          // 加上这行，则 assert 不可用
@@ -249,7 +269,7 @@ assert( p != NULL );    // assert 不可用
 
 设定结构体、联合以及类成员变量以 n 字节方式对齐
 
-<details><summary>#pragma pack(n) 使用</summary> 
+<summary>#pragma pack(n) 使用</summary> 
 
 
 ```cpp
@@ -295,10 +315,18 @@ volatile int i = 10;
 
 * 被 extern 限定的函数或变量是 extern 类型的
 * 被 `extern "C"` 修饰的变量和函数是按照 C 语言方式编译和连接的
+ 
+在C++源文件中的语句前面加上extern "C"，表明它按照类C的编译和连接规约来编译和连接，而不是C++的编译的连接规约
+
+主要是解决在C++代码中调用C代码
+
+https://github.com/hokein/Wiki/wiki/extern-%22C%22
 
 `extern "C"` 的作用是让 C++ 编译器将 `extern "C"` 声明的代码当作 C 语言代码处理，可以避免 C++ 因符号修饰导致代码不能和C语言库中的符号进行链接的问题。
 
-<details><summary>extern "C" 使用</summary> 
+
+
+<summary>extern "C" 使用</summary> 
 
 ```cpp
 #ifdef __cplusplus
@@ -398,7 +426,7 @@ int main() {
 * 匿名 union 不能包含 protected 成员或 private 成员
 * 全局匿名联合必须是静态（static）的
 
-<details><summary>union 使用</summary> 
+<summary>union 使用</summary> 
 
 ```cpp
 #include<iostream>
@@ -444,7 +472,7 @@ int main() {
 
 explicit 修饰的构造函数可用来防止隐式转换
 
-<details><summary>explicit 使用</summary> 
+<summary>explicit 使用</summary> 
 
 ```cpp
 class Test1
@@ -528,7 +556,7 @@ using namespace_name name;
 
 > 一般说来，使用 using 命令比使用 using 编译命令更安全，这是由于它**只导入了制定的名称**。如果该名称与局部名称发生冲突，编译器将**发出指示**。using编译命令导入所有的名称，包括可能并不需要的名称。如果与局部名称发生冲突，则**局部名称将覆盖名称空间版本**，而编译器**并不会发出警告**。另外，名称空间的开放性意味着名称空间的名称可能分散在多个地方，这使得难以准确知道添加了哪些名称。
 
-<details><summary>using 使用</summary> 
+<summary>using 使用</summary> 
 
 尽量少使用 `using 指示`
 
@@ -565,7 +593,7 @@ cout << x << endl;
 2. 类作用域符（`class::name`）：用于表示指定类型的作用域范围是具体某个类的
 3. 命名空间作用域符（`namespace::name`）:用于表示指定类型的作用域范围是具体某个命名空间的
 
-<details><summary>:: 使用</summary> 
+<summary>:: 使用</summary> 
 
 ```cpp
 int count = 0;        // 全局（::）的 count
@@ -612,7 +640,7 @@ decltype 关键字用于检查实体的声明类型或表达式的类型及值�
 decltype ( expression )
 ```
 
-<details><summary>decltype 使用</summary> 
+<summary>decltype 使用</summary> 
 
 ```cpp
 // 尾置返回允许我们在参数列表之后声明返回类型
@@ -671,7 +699,7 @@ auto fcn2(It beg, It end) -> typename remove_reference<decltype(*beg)>::type
 
 用花括号初始化器列表列表初始化一个对象，其中对应构造函数接受一个 `std::initializer_list` 参数.
 
-<details><summary>initializer_list 使用</summary> 
+<summary>initializer_list 使用</summary> 
 
 ```cpp
 #include <iostream>
@@ -780,7 +808,7 @@ public:
 * 构造函数不能是虚函数（因为在调用构造函数时，虚表指针并没有在对象的内存空间中，必须要构造函数调用完成后才会形成虚表指针）
 * 内联函数不能是表现多态性时的虚函数，解释见：[虚函数（virtual）可以是内联函数（inline）吗？](https://github.com/huihut/interview#%E8%99%9A%E5%87%BD%E6%95%B0virtual%E5%8F%AF%E4%BB%A5%E6%98%AF%E5%86%85%E8%81%94%E5%87%BD%E6%95%B0inline%E5%90%97)
 
-<details><summary>动态多态使用</summary> 
+<summary>动态多态使用</summary> 
 
 ```cpp
 class Shape                     // 形状类
@@ -824,7 +852,7 @@ int main()
 
 虚析构函数是为了解决基类的指针指向派生类对象，并用基类的指针删除派生类对象。
 
-<details><summary>虚析构函数使用</summary> 
+<summary>虚析构函数使用</summary> 
 
 ```cpp
 class Shape
@@ -921,7 +949,7 @@ virtual int A() = 0;
 
 用于分配、释放内存
 
-<details><summary>malloc、free 使用</summary> 
+<summary>malloc、free 使用</summary> 
 
 申请内存，确认是否申请成功
 
@@ -945,7 +973,7 @@ p = nullptr;
 2. delete/delete[]：也完成两件事，先调用析构函数（清理资源），然后底层调用 free 释放空间。
 3. new 在申请内存时会自动计算所需字节数，而 malloc 则需我们自己输入申请内存空间的字节数。
 
-<details><summary>new、delete 使用</summary> 
+<summary>new、delete 使用</summary> 
 
 申请内存，确认是否申请成功
 
@@ -1088,7 +1116,7 @@ unique_ptr 是 C++11 才开始提供的类型，是一种在异常时可以帮�
 
 * 由于强制转换为引用类型失败，dynamic_cast 运算符引发 bad_cast 异常。
 
-<details><summary>bad_cast 使用</summary> 
+<summary>bad_cast 使用</summary> 
 
 ```cpp
 try {  
@@ -1119,7 +1147,7 @@ catch (bad_cast b) {
 * type_info 类描述编译器在程序中生成的类型信息。 此类的对象可以有效存储指向类型的名称的指针。 type_info 类还可存储适合比较两个类型是否相等或比较其排列顺序的编码值。 类型的编码规则和排列顺序是未指定的，并且可能因程序而异。
 * 头文件：`typeinfo`
 
-<details><summary>typeid、type_info 使用</summary>
+<summary>typeid、type_info 使用</summary>
 
 ```cpp
 class Flyable                       // 能飞的
@@ -1235,7 +1263,7 @@ class doSomething(Flyable *obj)                 // 做些事情
 
 > 英文：[Google C++ Style Guide](https://google.github.io/styleguide/cppguide.html)  
 > 中文：[C++ 风格指南](https://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/)
-<details><summary>Google C++ Style Guide 图</summary>
+<summary>Google C++ Style Guide 图</summary>
 
 ![Google C++ Style Guide](images/GoogleCppStyleGuide.png)
 
@@ -1284,7 +1312,7 @@ hash_multimap|哈希表|插入、删除、查找 O(1) 最差 O(n)|无序|可重�
 
 [SqStack.cpp](DataStructure/SqStack.cpp)
 
-<details><summary>顺序栈数据结构和图片</summary>
+<summary>顺序栈数据结构和图片</summary>
 
 ```cpp
 typedef struct {
@@ -1301,7 +1329,7 @@ typedef struct {
 
 #### 队列（Sequence Queue）
 
-<details><summary>队列数据结构</summary>
+<summary>队列数据结构</summary>
 
 ```cpp
 typedef struct {
@@ -1316,7 +1344,7 @@ typedef struct {
 
 ##### 非循环队列
 
-<details><summary>非循环队列图片</summary>
+<summary>非循环队列图片</summary>
 
 ![](images/SqQueue.png)
 
@@ -1326,7 +1354,7 @@ typedef struct {
 
 ##### 循环队列
 
-<details><summary>循环队列图片</summary>
+<summary>循环队列图片</summary>
 
 ![](images/SqLoopStack.png)
 
@@ -1338,7 +1366,7 @@ typedef struct {
 
 [SqList.cpp](DataStructure/SqList.cpp)
 
-<details><summary>顺序表数据结构和图片</summary>
+<summary>顺序表数据结构和图片</summary>
 
 ```cpp
 typedef struct {
@@ -1360,7 +1388,7 @@ typedef struct {
 
 [LinkList_with_head.cpp](DataStructure/LinkList_with_head.cpp)
 
-<details><summary>链式数据结构</summary>
+<summary>链式数据结构</summary>
 
 ```cpp
 typedef struct LNode {
@@ -1373,7 +1401,7 @@ typedef struct LNode {
 
 #### 链队列（Link Queue）
 
-<details><summary>链队列图片</summary>
+<summary>链队列图片</summary>
 
 ![](images/LinkQueue.png)
 
@@ -1383,7 +1411,7 @@ typedef struct LNode {
 
 ##### 单链表（Link List）
 
-<details><summary>单链表图片</summary>
+<summary>单链表图片</summary>
 
 ![](images/LinkList.png)
 
@@ -1392,7 +1420,7 @@ typedef struct LNode {
 
 ##### 双向链表（Du-Link-List）
 
-<details><summary>双向链表图片</summary>
+<summary>双向链表图片</summary>
 
 ![](images/DuLinkList.png)
 
@@ -1400,7 +1428,7 @@ typedef struct LNode {
 
 ##### 循环链表（Cir-Link-List）
 
-<details><summary>循环链表图片</summary>
+<summary>循环链表图片</summary>
 
 ![](images/CirLinkList.png)
 
@@ -1432,7 +1460,7 @@ typedef struct LNode {
 
 #### 线性探测的哈希表数据结构
 
-<details><summary>线性探测的哈希表数据结构和图片</summary>
+<summary>线性探测的哈希表数据结构和图片</summary>
 
 ```cpp
 typedef char KeyType;
@@ -1479,7 +1507,7 @@ typedef struct {
 
 ##### 头尾链表存储表示
 
-<details><summary>广义表的头尾链表存储表示和图片</summary>
+<summary>广义表的头尾链表存储表示和图片</summary>
 
 ```cpp
 // 广义表的头尾链表存储表示
@@ -1506,7 +1534,7 @@ typedef struct GLNode {
 
 ##### 扩展线性链表存储表示
 
-<details><summary>扩展线性链表存储表示和图片</summary>
+<summary>扩展线性链表存储表示和图片</summary>
 
 ```cpp
 // 广义表的扩展线性链表存储表示
@@ -1546,7 +1574,7 @@ typedef struct GLNode1 {
 
 #### 存储结构
 
-<details><summary>二叉树数据结构</summary>
+<summary>二叉树数据结构</summary>
 
 ```cpp
 typedef struct BiTNode
@@ -1561,7 +1589,7 @@ typedef struct BiTNode
 
 ##### 顺序存储
 
-<details><summary>二叉树顺序存储图片</summary>
+<summary>二叉树顺序存储图片</summary>
 
 ![](images/SqBinaryTree.png)
 
@@ -1569,7 +1597,7 @@ typedef struct BiTNode
 
 ##### 链式存储
 
-<details><summary>二叉树链式存储图片</summary>
+<summary>二叉树链式存储图片</summary>
 
 ![](images/LinkBinaryTree.png)
 
@@ -1616,7 +1644,7 @@ typedef struct BiTNode
 * 平衡二叉树必定是二叉搜索树，反之则不一定
 * 最小二叉平衡树的节点的公式：`F(n)=F(n-1)+F(n-2)+1` （1 是根节点，F(n-1) 是左子树的节点数量，F(n-2) 是右子树的节点数量）
 
-<details><summary>平衡二叉树图片</summary>
+<summary>平衡二叉树图片</summary>
 
 ![](images/Self-balancingBinarySearchTree.png)
 
@@ -1660,7 +1688,7 @@ typedef struct BiTNode
 
 #### B 树（B-tree）、B+ 树（B+-tree）
 
-<details><summary>B 树、B+ 树图片</summary>
+<summary>B 树、B+ 树图片</summary>
 
 ![B 树（B-tree）、B+ 树（B+-tree）](https://i.stack.imgur.com/l6UyF.png)
 
@@ -1693,7 +1721,7 @@ typedef struct BiTNode
 
 #### 八叉树
 
-<details><summary>八叉树图片</summary>
+<summary>八叉树图片</summary>
 
 ![](https://upload.wikimedia.org/wikipedia/commons/thumb/3/35/Octree2.png/400px-Octree2.png)
 
@@ -1959,7 +1987,7 @@ B树/B+树 |O(log<sub>2</sub>n) |   |
 小端|78|56|34|12
 
 
-<details><summary>大端小端图片</summary>
+<summary>大端小端图片</summary>
 
 ![大端序](images/CPU-Big-Endian.svg.png)
 ![小端序](images/CPU-Little-Endian.svg.png)
@@ -1968,7 +1996,7 @@ B树/B+树 |O(log<sub>2</sub>n) |   |
 
 ##### 判断大端小端
 
-<details><summary>判断大端小端</summary>
+<summary>判断大端小端</summary>
 
 可以这样判断自己 CPU 字节序是大端还是小端：
 
@@ -2250,7 +2278,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 
 ##### 方法
 
-<details><summary>利用可变窗口进行流量控制</summary>
+<summary>利用可变窗口进行流量控制</summary>
 
 ![](images/利用可变窗口进行流量控制举例.png)
 
@@ -2269,7 +2297,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 * 快重传( fast retransmit )
 * 快恢复( fast recovery )
 
-<details><summary>TCP的拥塞控制图</summary>
+<summary>TCP的拥塞控制图</summary>
 
 ![](images/TCP拥塞窗口cwnd在拥塞控制时的变化情况.png)
 ![](images/快重传示意图.png)
@@ -2339,7 +2367,7 @@ TCP 是一个基于字节流的传输服务（UDP 基于报文的），“流”
 
 #### TCP 有限状态机
 
-<details><summary>TCP 有限状态机图片</summary>
+<summary>TCP 有限状态机图片</summary>
 
 ![TCP 的有限状态机](images/TCP的有限状态机.png)
 
@@ -2679,7 +2707,7 @@ Linux 下的共享库就是普通的 ELF 共享对象。
 
 #### so 共享库的编写
 
-<details><summary>使用 CLion 编写共享库</summary>
+<summary>使用 CLion 编写共享库</summary>
 
 创建一个名为 MySharedLib 的共享库
 
@@ -2733,7 +2761,7 @@ void hello() {
 
 #### so 共享库的使用（被可执行项目调用）
 
-<details><summary>使用 CLion 调用共享库</summary>
+<summary>使用 CLion 调用共享库</summary>
 
 创建一个名为 TestSharedLib 的可执行项目
 
@@ -2794,7 +2822,7 @@ Hello, World!
 * GUI（Graphical User Interface）应用，链接器选项：`/SUBSYSTEM:WINDOWS`
 * CUI（Console User Interface）应用，链接器选项：`/SUBSYSTEM:CONSOLE`
 
-<details><summary>_tWinMain 与 _tmain 函数声明</summary>
+<summary>_tWinMain 与 _tmain 函数声明</summary>
 
 ```cpp
 Int WINAPI _tWinMain(
@@ -2853,7 +2881,7 @@ int _tmain(
 
 #### DLL 入口函数
 
-<details><summary>DllMain 函数</summary>
+<summary>DllMain 函数</summary>
 
 ```cpp
 BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
@@ -2885,7 +2913,7 @@ BOOL WINAPI DllMain(HINSTANCE hinstDLL, DWORD fdwReason, LPVOID lpvReserved)
 
 #### 载入卸载库
 
-<details><summary>LoadLibrary、LoadLibraryExA、LoadPackagedLibrary、FreeLibrary、FreeLibraryAndExitThread 函数声明</summary>
+<summary>LoadLibrary、LoadLibraryExA、LoadPackagedLibrary、FreeLibrary、FreeLibraryAndExitThread 函数声明</summary>
 
 ```cpp
 // 载入库
@@ -2918,7 +2946,7 @@ VOID WINAPI FreeLibraryAndExitThread(
 
 #### 显示地链接到导出符号
 
-<details><summary>GetProcAddress 函数声明</summary>
+<summary>GetProcAddress 函数声明</summary>
 
 ```cpp
 FARPROC GetProcAddress(
@@ -2938,7 +2966,7 @@ DUMPBIN -exports D:\mydll.dll
 
 #### LoadLibrary 与 FreeLibrary 流程图
 
-<details><summary>LoadLibrary 与 FreeLibrary 流程图</summary>
+<summary>LoadLibrary 与 FreeLibrary 流程图</summary>
 
 ##### LoadLibrary
 
@@ -2952,7 +2980,7 @@ DUMPBIN -exports D:\mydll.dll
 
 #### DLL 库的编写（导出一个 DLL 模块）
 
-<details><summary>DLL 库的编写（导出一个 DLL 模块）</summary>
+<summary>DLL 库的编写（导出一个 DLL 模块）</summary>
 DLL 头文件
 
 ```cpp
@@ -3007,7 +3035,7 @@ int Add(int nLeft, int nRight)
 
 #### DLL 库的使用（运行时动态链接 DLL）
 
-<details><summary>DLL 库的使用（运行时动态链接 DLL）</summary>
+<summary>DLL 库的使用（运行时动态链接 DLL）</summary>
 
 ```cpp
 // A simple program that uses LoadLibrary and 
