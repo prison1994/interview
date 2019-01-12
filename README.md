@@ -574,20 +574,7 @@ auto fcn2(It beg, It end) -> typename remove_reference<decltype(*beg)>::type
 * C++ 多态有两种：静态多态（早绑定）、动态多态（晚绑定）。静态多态是通过函数重载实现的；动态多态是通过虚函数实现的。
 * 多态是以封装和继承为基础的。
 
-#### 静态多态（早绑定）
-
-函数重载
-
-```cpp
-class A
-{
-public:
-    void do(int a);
-    void do(int a, int b);
-};
-```
-
-#### 动态多态（晚绑定）
+### 动态多态（晚绑定）
 
 * 虚函数：用 virtual 修饰成员函数，使其成为虚函数
 
@@ -596,44 +583,6 @@ public:
 * 静态函数（static）不能是虚函数
 * 构造函数不能是虚函数（因为在调用构造函数时，虚表指针并没有在对象的内存空间中，必须要构造函数调用完成后才会形成虚表指针）
 * 内联函数不能是表现多态性时的虚函数，解释见：[虚函数（virtual）可以是内联函数（inline）吗？](https://github.com/huihut/interview#%E8%99%9A%E5%87%BD%E6%95%B0virtual%E5%8F%AF%E4%BB%A5%E6%98%AF%E5%86%85%E8%81%94%E5%87%BD%E6%95%B0inline%E5%90%97)
-
-<summary>动态多态使用</summary> 
-
-```cpp
-class Shape                     // 形状类
-{
-public:
-    virtual double calcArea()
-    {
-        ...
-    }
-    virtual ~Shape();
-};
-class Circle : public Shape     // 圆形类
-{
-public:
-    virtual double calcArea();
-    ...
-};
-class Rect : public Shape       // 矩形类
-{
-public:
-    virtual double calcArea();
-    ...
-};
-int main()
-{
-    Shape * shape1 = new Circle(4.0);
-    Shape * shape2 = new Rect(5.0, 6.0);
-    shape1->calcArea();         // 调用圆形类里面的方法
-    shape2->calcArea();         // 调用矩形类里面的方法
-    delete shape1;
-    shape1 = nullptr;
-    delete shape2;
-    shape2 = nullptr;
-    return 0;
-}
-```
 
 
 
@@ -729,12 +678,6 @@ https://jocent.me/2017/08/07/virtual-table.html
 
 ### 内存分配和管理
 
-#### malloc、calloc、realloc、alloca
-
-1. malloc：申请指定字节数的内存。申请到的内存中的初始值不确定。
-2. calloc：为指定长度的对象，分配能容纳其指定个数的内存。申请到的内存的每一位（bit）都初始化为 0。
-3. realloc：更改以前分配的内存长度（增加或减少）。当增加长度时，可能需将以前分配区的内容移到另一个足够大的区域，而新增区域内的初始值则不确定。
-4. alloca：在栈上申请内存。程序在出栈的时候，会自动释放内存。但是需要注意的是，alloca 不具可移植性, 而且在没有传统堆栈的机器上很难实现。alloca 不宜使用在必须广泛移植的程序中。C99 中支持变长数组 (VLA)，可以用来替代 alloca。
 
 #### malloc、free
 
@@ -779,7 +722,7 @@ int main()
 
 
 
-#### 定位 new
+#### placement new
 
 定位 new（placement new）允许我们向 new 传递额外的参数。
 
@@ -822,6 +765,15 @@ new (palce_address) type [size] { braced initializer list }
 ### 如何定义一个只能在堆上（栈上）生成对象的类？
 
 > [如何定义一个只能在堆上（栈上）生成对象的类?](https://www.nowcoder.com/questionTerminal/0a584aa13f804f3ea72b442a065a7618)
+
+>  
+	在C++中，类的对象建立分为两种，一种是静态建立，如A a；另一种是动态建立，如A* ptr=new A；这两种方式是有区别的。
+
+        静态建立一个类对象，是由编译器为对象在栈空间中分配内存，是通过直接移动栈顶指针，挪出适当的空间，然后在这片内存空间上调用构造函数形成一个栈对象。使用这种方法，直接调用类的构造函数。
+
+        动态建立类对象，是使用new运算符将对象建立在堆空间中。这个过程分为两步，第一步是执行operator new()函数，在堆空间中搜索合适的内存并进行分配；第二步是调用构造函数构造对象，初始化这片内存空间。这种方法，间接调用类的构造函数。
+
+
 
 #### 只能在堆上
 
