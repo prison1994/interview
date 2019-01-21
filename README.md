@@ -636,11 +636,7 @@ virtual int A() = 0;
 * 带纯虚函数的类叫抽象类，这种类不能直接生成对象，而只有被继承，并重写其虚函数后，才能使用。抽象类和大家口头常说的虚基类还是有区别的，在 C# 中用 abstract 定义抽象类，而在 C++ 中有抽象类的概念，但是没有这个关键字。抽象类被继承后，子类可以继续是抽象类，也可以是普通类，而虚基类，是含有纯虚函数的类，它如果被继承，那么子类就必须实现虚基类里面的所有纯虚函数，其子类不能是抽象类。
 
 ### 虚函数指针、虚函数表
-
 https://jocent.me/2017/08/07/virtual-table.html
-
-* 虚函数指针：在含有虚函数类的对象中，指向虚函数表，在运行时确定。
-* 虚函数表：在程序只读数据段（`.rodata section`，见：[目标文件存储结构](#%E7%9B%AE%E6%A0%87%E6%96%87%E4%BB%B6%E5%AD%98%E5%82%A8%E7%BB%93%E6%9E%84)），存放虚函数指针，如果派生类实现了基类的某个虚函数，则在虚表中覆盖原本基类的那个虚函数指针，在编译时根据类的声明创建。
 
 ### 虚继承
 
@@ -676,65 +672,7 @@ https://jocent.me/2017/08/07/virtual-table.html
     * 没有类内初始化
     * 没有基类，也没有 virtual 函数
 
-### 内存分配和管理
-
-
-#### malloc、free
-
-用于分配、释放内存
-
-<summary>malloc、free 使用</summary> 
-
-申请内存，确认是否申请成功
-
-```cpp
-char *str = (char*) malloc(100);
-assert(str != nullptr);
-```
-
-释放内存后指针置空
-
-```cpp
-free(p); 
-p = nullptr;
-```
-
-
-
-#### new、delete
-
-1. new / new[]：完成两件事，先底层调用 malloc 分了配内存，然后调用构造函数（创建对象）。
-2. delete/delete[]：也完成两件事，先调用析构函数（清理资源），然后底层调用 free 释放空间。
-3. new 在申请内存时会自动计算所需字节数，而 malloc 则需我们自己输入申请内存空间的字节数。
-
-<summary>new、delete 使用</summary> 
-
-申请内存，确认是否申请成功
-
-```cpp
-int main()
-{
-    T* t = new T();     // 先内存分配 ，再构造函数
-    delete t;           // 先析构函数，再内存释放
-    return 0;
-}
-```
-
-
-
-#### placement new
-
-定位 new（placement new）允许我们向 new 传递额外的参数。
-
-```cpp
-new (palce_address) type
-new (palce_address) type (initializers)
-new (palce_address) type [size]
-new (palce_address) type [size] { braced initializer list }
-```
-
-* `palce_address` 是个指针
-* `initializers` 提供一个（可能为空的）以逗号分隔的初始值列表
+ 
 
 ### delete this 合法吗？
 
@@ -836,9 +774,9 @@ unique_ptr 是 C++11 才开始提供的类型，是一种在异常时可以帮�
 * auto_ptr 可以赋值拷贝，复制拷贝后所有权转移；unqiue_ptr 无拷贝赋值语义，但实现了`move` 语义；
 * auto_ptr 对象不能管理数组（析构调用 `delete`），unique_ptr 可以管理数组（析构调用 `delete[]` ）；
 
-### 强制类型转换运算符
+### 4种cast 
 
-> [MSDN . 强制转换运算符](https://msdn.microsoft.com/zh-CN/library/5f6c9f8h.aspx)
+https://blog.csdn.net/shun_fzll/article/details/38358195
 
 #### static_cast
 
