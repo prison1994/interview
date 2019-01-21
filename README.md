@@ -675,15 +675,21 @@ https://jocent.me/2017/08/07/virtual-table.html
 ### 单例模式
 ```cpp 
 
-class Signngleton {
-    public:
-        static Singleton& getInstance() {
-            static Sigleton instance;
-            return instance;
-        }
-    private:
-        Singleton() {}
-}
+// 线程安全的单例模式
+class Singleton
+{
+private:
+	Singleton() { }
+	~Singleton() { }
+	Singleton(const Singleton &);
+	Singleton & operator = (const Singleton &);
+public:
+	static Singleton & GetInstance()
+	{
+		static Singleton instance;
+		return instance;
+	}
+};
 
 
 ```
