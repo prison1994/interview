@@ -31,6 +31,7 @@ C/C++ 面试基础知识总结，只为复习、分享。勘误新增请 [Issue]
 ## C/C++
 
 ### 标准C＋＋类std::string的内存共享和Copy-On-Write（写时拷贝）
+这个东西跟fork一样，子进程如果读，父子进程共用这一块物理内存，子进程如果修改了某个变量的值，再去映射到另一块物理内存
 https://blog.csdn.net/Li_Ning_/article/details/51348830
 
 
