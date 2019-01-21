@@ -533,7 +533,7 @@ auto fcn2(It beg, It end) -> typename remove_reference<decltype(*beg)>::type
 
 好处
 
-* 更高效：少了一次调用默认构造函数的过程。
+* 更高效：少了一次调用默认构造函数的过程。 （先用默认的构造函数初始化，然后再用拷贝构造进行赋值。）
 * 对于内置类型，如int, float等，使用初始化类表和在构造函数体内初始化差别不是很大，但是对于类类型来说，最好使用初始化列表
 * https://blog.csdn.net/JackZhang_123/article/details/82590368
 
