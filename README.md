@@ -696,53 +696,107 @@ public:
 
 ### 智能指针
 
-#### C++ 标准库（STL）中
+http://www.cnblogs.com/lanxuezaipiao/p/4132096.html
+https://blog.csdn.net/albertsh/article/details/82286999
 
-头文件：`#include <memory>`
-
-#### C++ 98
-
+#### 智能指针的作用
 ```cpp
-std::auto_ptr<std::string> ps (new std::string(str))；
+class Test
+{
+public:
+    Test(int a = 0 ) : m_a(a){ }
+    ~Test( ) { cout<<"Calling destructor"<<endl; }
+    public: int m_a;
+}; 
+void Fun( )
+{
+    int a = 0, b= 5, c;
+    if( a ==0 )
+    {
+        throw "Invalid divisor";
+    }
+    c = b/a;
+    return;
+} 
+void main( )
+{
+    try
+    {
+        std::auto_ptr<Test> p( new Test(5) ); 
+        Fun( );
+        cout<<p->m_a<<endl;
+    }
+    catch(...)
+    {
+        cout<<"Something has gone wrong"<<endl;
+    }
+}
 ```
 
 
-#### C++ 11
+#### 为什么auto_ptr 被抛弃
 
-1. shared_ptr
-2. unique_ptr
-3. weak_ptr
-4. auto_ptr（被 C++11 弃用）
+```cpp
+auto_ptr<string> films[5] =
+ {
+  auto_ptr<string> (new string("Fowl Balls")),
+  auto_ptr<string> (new string("Duck Walks")),
+  auto_ptr<string> (new string("Chicken Runs")),
+  auto_ptr<string> (new string("Turkey Errors")),
+  auto_ptr<string> (new string("Goose Eggs"))
+ };
+ auto_ptr<string> pwin;
+ pwin = films[2]; // films[2] loses ownership. 将所有权从films[2]转让给pwin，此时films[2]不再引用该字符串从而变成空指针
 
-* Class shared_ptr 实现共享式拥有（shared ownership）概念。多个智能指针指向相同对象，该对象和其相关资源会在 “最后一个 reference 被销毁” 时被释放。为了在结构较复杂的情景中执行上述工作，标准库提供 weak_ptr、bad_weak_ptr 和 enable_shared_from_this 等辅助类。
-* Class unique_ptr 实现独占式拥有（exclusive ownership）或严格拥有（strict ownership）概念，保证同一时间内只有一个智能指针可以指向该对象。你可以移交拥有权。它对于避免内存泄漏（resource leak）——如 new 后忘记 delete ——特别有用。
+ cout << "The nominees for best avian baseballl film are\n";
+ for(int i = 0; i < 5; ++i)
+  cout << *films[i] << endl;
+```
+如上代码，我们来思考一下，如果
 
-##### shared_ptr
+auto_ptr的几点注意事项：
+1. auto_ptr不能共享所有权
+2. auto_ptr不能指向数组
+3. auto_ptr不能作为容器的成员
+4. 不能通过复制操作来初始化auto_ptr
+    std::auto_ptr<int> p(new int(42)); //OK
+    std::atuo_ptr<int>p = new int(42);//Error
+    这是因为auto_ptr的构造函数被定义了explicit
+5. 不要把auto_ptr放入容器
 
-多个智能指针可以共享同一个对象，对象的最末一个拥有着有责任销毁对象，并清理与该对象相关的所有资源。
 
-* 支持定制型删除器（custom deleter），可防范 Cross-DLL 问题（对象在动态链接库（DLL）中被 new 创建，却在另一个 DLL 内被 delete 销毁）、自动解除互斥锁
+#### unique_ptr为何优于auto_ptr？
+ 安全问题，下面再叙述的清晰一点。
+ 
 
-##### weak_ptr
+auto_ptr<string> p1(new string ("auto") ； //#1   
+auto_ptr<string> p2;                       //#2  
+p2 = p1;                                   //#3  
+在语句#3中，p2接管string对象的所有权后，p1的所有权将被剥夺。前面说过，这是好事，可防止p1和p2的析构函数试图刪同—个对象；
 
-weak_ptr 允许你共享但不拥有某对象，一旦最末一个拥有该对象的智能指针失去了所有权，任何 weak_ptr 都会自动成空（empty）。因此，在 default 和 copy 构造函数之外，weak_ptr 只提供 “接受一个 shared_ptr” 的构造函数。
+但如果程序随后试图使用p1，这将是件坏事，因为p1不再指向有效的数据。
 
-* 可打破环状引用（cycles of references，两个其实已经没有被使用的对象彼此互指，使之看似还在 “被使用” 的状态）的问题
+下面来看使用unique_ptr的情况：
 
-##### unique_ptr
+unique_ptr<string> p3 (new string ("auto");   //#4  
+unique_ptr<string> p4；                       //#5  
+p4 = p3;       
+编译器认为语句#6非法，避免了p3不再指向有效数据的问题。因此，unique_ptr比auto_ptr更安全。
 
-unique_ptr 是 C++11 才开始提供的类型，是一种在异常时可以帮助避免资源泄漏的智能指针。采用独占式拥有，意味着可以确保一个对象和其相应的资源同一时间只被一个 pointer 拥有。一旦拥有着被销毁或编程 empty，或开始拥有另一个对象，先前拥有的那个对象就会被销毁，其任何相应资源亦会被释放。
 
-* unique_ptr 用于取代 auto_ptr
+#### shared_ptr 和 weak_ptr
 
-##### auto_ptr
+weak_ptr它的出现完全是为了弥补它老大shared_ptr天生有缺陷的问题，其实相比于上一代的智能指针auto_ptr来说，新进老大shared_ptr可以说近乎完美，但是通过引用计数实现的它，虽然解决了指针独占的问题，但也引来了引用成环的问题，这种问题靠它自己是没办法解决的，所以在C++11的时候将shared_ptr和weak_ptr一起引入了标准库，用来解决循环引用的问题。
 
-被 c++11 弃用，原因是缺乏语言特性如 “针对构造和赋值” 的 `std::move` 语义，以及其他瑕疵。
+weak_ptr本身也是一个模板类，但是不能直接用它来定义一个智能指针的对象，只能配合shared_ptr来使用，可以将shared_ptr的对象赋值给weak_ptr，并且这样并不会改变引用计数的值。查看weak_ptr的代码时发现，它主要有lock、swap、reset、expired、operator=、use_count几个函数，与shared_ptr相比多了lock、expired函数，但是却少了get函数，甚至连operator* 和 operator->都没有，可用的函数数量少的可怜，下面通过一些例子来了解一下weak_ptr的具体用法。 
 
-##### auto_ptr 与 unique_ptr 比较
+1. weak_ptr虽然是一个模板类，但是不能用来直接定义指向原始指针的对象。
+2. weak_ptr接受shared_ptr类型的变量赋值，但是反过来是行不通的，需要使用lock函数。
+3. weak_ptr设计之初就是为了服务于shared_ptr的，所以不增加引用计数就是它的核心功能。
+4. 由于不知道什么之后weak_ptr所指向的对象就会被析构掉，所以使用之前请先使用expired函数检测一下。
+ 
 
-* auto_ptr 可以赋值拷贝，复制拷贝后所有权转移；unqiue_ptr 无拷贝赋值语义，但实现了`move` 语义；
-* auto_ptr 对象不能管理数组（析构调用 `delete`），unique_ptr 可以管理数组（析构调用 `delete[]` ）；
+ 
 
 ### 4种cast 
 
